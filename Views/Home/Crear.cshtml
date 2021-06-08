@@ -1,0 +1,235 @@
+﻿@model Test_GISSA.Entidades.test_Usuario
+
+@{
+    ViewBag.Title = "Crear";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header">Registro</div>
+        <div class="card-body">
+            @using (Html.BeginForm("Ingresa_Usuario", "Home",
+
+                        FormMethod.Post
+                        , htmlAttributes: new { id = "car-form", @class = "row g-3" }))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="form-floating col-6">
+                    @Html.DropDownListFor(model => model.Tipo_Usuario, new SelectList(new string[] { "administrador", "consultor" }), htmlAttributes: new { @class = "form-control" })
+                    <label class="form-label">Tipo de Usuario</label>
+                </div>
+
+                <div class="form-floating col-md-6">
+                    @Html.EditorFor(model => model.Nombre, new { htmlAttributes = new { @class = "form-control", Id = "nombre", required= "true" } })
+                    <label>Nombre completo</label>
+                </div>
+
+                <div class="form-floating col-6">
+                    @Html.DropDownListFor(model => model.Tipo_Identificacion, new SelectList(new string[] { "Nacional", "Extranjero" }), htmlAttributes: new { @class = "form-control" })
+                    <label class="form-label">Tipo Identificacion</label>
+                </div>
+
+                <div class="form-floating col-md-6">
+                    @Html.EditorFor(model => model.Nombre_Usuario, new { htmlAttributes = new { @class = "form-control" } })
+                    <label>Nombre de Usuario</label>
+                </div>
+
+                <div class="form-floating col-md-6">
+
+                    @Html.EditorFor(model => model.Cedula, new { htmlAttributes = new { @class = "form-control" } })
+                    <label class="form-label">Cédula</label>
+                </div>
+
+                <div class="form-floating col-md-6">
+                    @Html.EditorFor(model => model.Correo, new { htmlAttributes = new { @class = "form-control", id = "correo" } })
+
+                    <label class="form-label">Correo</label>
+                </div>
+
+                <div class="form-floating col-md-6">
+                    <h6>Seleccione como mínimo 3 habilidades blandas:</h6>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="Buena comunicación" id="buena_comunicacion">
+                        <label class="form-check-label" for="buena_comunicacion">
+                            Buena comunicación
+                        </label>
+                    </div>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="Buena organización" id="buena_organizacion">
+                        <label class="form-check-label" for="buena_organizacion">
+                            Buena organización
+                        </label>
+                    </div>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="Trabajo en equipo" id="trabajo_equipo">
+                        <label class="form-check-label" for="trabajo_equipo">
+                            Trabajo en equipo
+                        </label>
+                    </div>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="Puntualidad" id="puntualidad">
+                        <label class="form-check-label" for="puntualidad">
+                            Puntualidad
+                        </label>
+                    </div>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="Ser creativo" id="ser_creativo">
+                        <label class="form-check-label" for="ser_creativo">
+                            Ser creativo
+                        </label>
+                    </div>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="Facilidad de adaptación" id="facilidad_adaptacion">
+                        <label class="form-check-label" for="facilidad_adaptacion">
+                            Facilidad de adaptación
+                        </label>
+                    </div>
+
+                </div>
+
+                <div class="form-floating col-6">
+                    <input type="number" class="form-control" id="telefono" placeholder="telefono" minlength="8" required>
+                    <label class="form-label">Teléfono</label> <br/>
+                    <a class="btn btn-primary" id="agrega_telefono" href="#">Agregar telefono</a>
+                </div>
+
+                <div class="form-floating col-md-6">
+                    @Html.EditorFor(model => model.Clave, new { htmlAttributes = new { @class = "form-control" } })
+                    <label class="form-label">Contraseña</label>
+                </div>
+                <div class="form-floating col-6">
+                    Telefonos
+                    <ol id="lista_telefonos">
+                    
+
+                    </ol>
+                </div>
+                <div class="col-12">
+
+                   
+                    <a class="btn btn-primary" id="btn-sendForm" href="#">Enviar modelo</a>
+                </div>
+
+            }
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+   
+<script>
+
+        let telefonos = [];
+        let habilidades = [];
+        let fk_usuario = [];
+
+    $("#btn-sendForm").click(function () {
+
+
+        if (telefonos.length == 0){
+        alert("Ingrese numero telefonico");
+        return;
+        }
+        if (habilidades.length < 3) {
+            alert("Ingrese habilidades blandas");
+            return;
+        }
+
+        
+
+
+
+
+
+            var jsonData = $('#car-form').serialize()
+
+            $.ajax({
+                url: '@Url.Action("Ingresa_Usuario", "Home")',
+                type: 'POST',
+
+                cache: false,
+                data: jsonData,
+                success: function (result) {
+                    fk_usuario.push(result);
+                    Inserta();
+                },
+                error: function (jqXHR, textStatus, error) {
+
+                }
+            });
+        });
+
+
+
+
+
+
+    function Inserta() {
+            $.ajax({
+                url: '@Url.Action("Ingresa", "Home")',
+                type: 'POST',
+                cache: false,
+                data: { 'telefonos': telefonos, 'habilidades': habilidades, 'fk_usuario': fk_usuario },
+                success: function (result) {
+                    alert("Usuario Agregado!")
+                    location.reload();
+                },
+                error: function (jqXHR, textStatus, error) {
+
+                }
+            });
+        }
+
+
+
+        $('#agrega_telefono').click(function () {
+            console.log(telefonos);
+            let telefono_agrega = $('#telefono').val();
+
+            $('#lista_telefonos').append(` <li>${telefono_agrega}</li>`);
+            telefonos.push(telefono_agrega);
+
+        });
+
+
+
+
+
+
+
+
+        $('#car-form :checkbox').change(function () {
+            let val = $(this).val();
+            if (this.checked) {
+
+
+                habilidades.push(val);
+                console.log(habilidades);
+            } else {
+
+                habilidades.forEach(function (car, index, object) {
+                    if (car == val) {
+                        object.splice(index, 1);
+                    }
+                });
+                console.log(habilidades);
+            }
+        });
+</script>
